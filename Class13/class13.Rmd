@@ -1,0 +1,68 @@
+---
+title: "Class13"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#Ensemble 
+
+```{r}
+mxl <-  read.csv(file ="373531-SampleGenotypes-Homo_sapiens_Variation_Sample_rs8067378.csv")
+head(mxl)
+
+table(mxl$Genotype..forward.strand.)
+
+```
+Proportion of MXL with G|G genotype
+```{r}
+table(mxl$Genotype..forward.strand.)/nrow(mxl)*100
+```
+
+
+```{r}
+library(seqinr)
+library(gtools)
+phred <- asc( s2c("DDDDCDEDCDDDDBBDDDCC@") ) - 33
+phred
+```
+
+
+
+
+
+```{r}
+hits <- read.table("rs8067378_ENSG00000172057.6.txt")
+
+summary(hits)
+table(hits$geno)
+ind <- (hits$geno == "G/G")
+
+summary(hits[ind,])
+
+indaa <- (hits$geno == "A/A")
+
+indag <- hits$geno == "A/G"
+
+summary(hits[indaa,])
+summary(hits[indag,])
+
+
+
+
+
+boxplot(hits$exp ~ hits$geno, notch=TRUE)
+
+```
+
+
+
+
+
+
+
+
+
