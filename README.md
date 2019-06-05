@@ -12,4 +12,4 @@ Class Content:
 
 - [Class 14](https://github.com/paxelnat/bggn213/blob/master/class14/class14.md)
 
--[Class 15](https://github.com/paxelnat/bggn213/blob/master/class15/class15.Rmd)
+- [Class 15](https://github.com/paxelnat/bggn213/blob/master/class15/class15.Rmd)
