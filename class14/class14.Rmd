@@ -1,0 +1,217 @@
+---
+title: "Class14"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+counts <- read.csv("airway_scaledcounts.csv", stringsAsFactors = FALSE)
+metadata <-  read.csv("airway_metadata.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+head(counts)
+head(metadata)
+```
+
+Q1. How many genes
+
+```{r}
+nrow(counts)
+```
+
+Lets check if the cols of 'counts' is the same as rows of 'metadata'
+
+
+```{r}
+colnames(counts)
+metadata$id
+
+colnames(counts)[-1]
+
+colnames(counts)[-1] == metadata$id
+
+all(colnames(counts)[-1] == metadata$id)
+
+
+```
+
+
+Access Control Read Data
+```{r}
+control <- metadata[metadata[,"dex"]=="control",]
+control.mean <- rowSums( counts[ ,control$id] )/length(control$id) 
+names(control.mean) <- counts$ensgene
+```
+
+Access Treated Read Data
+```{r}
+treated <- metadata[metadata[,"dex"]=="treated",]
+treated.mean <- rowSums( counts[ ,treated$id] )/length(treated$id) 
+names(treated.mean) <- counts$ensgene
+head(treated.mean)
+```
+
+
+```{r}
+head(control.mean)
+```
+
+```{r}
+meancounts <- data.frame(control.mean,treated.mean)
+```
+
+
+Q6. plot(log)
+```{r}
+plot(meancounts, ylab="Treated", xlab="Control")
+plot(meancounts, ylab="Treated", xlab="Control",log="xy")
+```
+
+
+
+Q7.
+```{r}
+meancounts$log2fc <- log2(meancounts[,"treated.mean"]/meancounts[,"control.mean"])
+head(meancounts)
+
+
+zero.vals <- which(meancounts[,1:2]==0, arr.ind = TRUE)
+
+to.rm <- unique(zero.vals[,1])
+mycounts <- meancounts[-to.rm,]
+head(mycounts)
+
+```
+How many genes are upregulated or down regulated?
+Q8.Up regulated: 250 genes
+Q9.Down regulated: 367 genes
+```{r}
+up.ind <- mycounts$log2fc > 2
+down.ind <- mycounts$log2fc < (-2)
+
+sum(up.ind)
+sum(down.ind)
+
+```
+
+
+Q10. Annotating our Data
+```{r}
+anno <- read.csv("annotables_grch38.csv")
+head(anno)
+```
+
+```{r}
+mycounts.anno <- merge(mycounts, anno, by.y="ensgene", by.x=0)
+library("AnnotationDbi")
+library("org.Hs.eg.db")
+```
+
+```{r}
+columns(org.Hs.eg.db)
+```
+
+```{r}
+mycounts$symbol <- mapIds(org.Hs.eg.db, keys=row.names(mycounts), keytype="ENSEMBL", column="SYMBOL", multiVals="first")
+```
+
+```{r}
+mycounts$entrez <- mapIds(org.Hs.eg.db, keys=row.names(mycounts), keytype="ENSEMBL", column="ENTREZID", multiVals="first")
+```
+```{r}
+mycounts$uniprot <- mapIds(org.Hs.eg.db,
+                           keys=row.names(mycounts),
+                           column="UNIPROT",
+                           keytype="ENSEMBL",
+                           multiVals="first")
+
+View(mycounts[up.ind,])
+
+
+```
+
+#Section 5 DESeq2 Analysis
+
+
+```{r}
+library("DESeq2")
+citation("DESeq2")
+```
+
+Building DESeqDataSet
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData=counts, 
+                              colData=metadata, 
+                              design=~dex, 
+                              tidy=TRUE)
+dds
+```
+
+```{r}
+dds <- DESeq(dds)
+
+```
+
+```{r}
+res <- results(dds)
+#as.data.frame(res)
+```
+
+```{r}
+summary(res)
+
+```
+
+
+
+```{r}
+res05 <- results(dds, alpha=0.05)
+summary(res05)
+```
+
+```{r}
+mycols <- rep("gray", nrow(res))
+mycols[ abs(res$log2FoldChange) > 2 ]  <- "red" 
+inds <- (res$padj < 0.01) & (abs(res$log2FoldChange) > 2 )
+mycols[ inds ] <- "blue"
+
+plot( res$log2FoldChange,  -log(res$padj), 
+      xlab="Log2(FoldChange)",
+      ylab="-Log(P-value)", col=mycols)
+abline(h=0.05, v=c(-2,2), lty=2, col="gray")
+
+
+```
+
+Enhanced Volcano Plot
+
+```{r}
+x <- as.data.frame(res)
+x$symbol <- mapIds(org.Hs.eg.db, 
+                   keys=row.names(x),
+                   keytype="ENSEMBL",
+                   column="SYMBOL",
+                   multiVals="first")
+```
+
+```{r}
+library(EnhancedVolcano)
+```
+
+
+```{r}
+EnhancedVolcano(x,
+    lab = x$symbol,
+    x = 'log2FoldChange',
+    y = 'pvalue')
+```
+
+
+
+
+

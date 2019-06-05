@@ -1,0 +1,77 @@
+---
+title: "Class12"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Section 1.1
+```{r}
+library(bio3d)
+file.name <-  get.pdb("1hsg")
+```
+
+Section 1 con't
+```{r}
+hiv <- read.pdb("1hsg.pdb")
+hiv
+(hiv$atom)
+
+```
+Q1: H2O and MK1
+
+
+Section 1.2
+
+```{r}
+prot <- trim.pdb(hiv, "protein")
+lig <- trim.pdb(hiv, "ligand")
+
+write.pdb(prot, file="1hsg_protein.pdb")
+write.pdb(lig, file="1hsg_ligand.pdb")
+```
+
+
+Section 1.3
+Q2: Binding site is visible 
+
+#Section2.2
+
+```{r}
+res <- read.pdb("all.pdbqt", multi=TRUE)
+
+write.pdb(res, "results.pdb")
+
+```
+
+
+```{r}
+res <-read.pdb("all.pdbqt", multi=TRUE)
+ori <-read.pdb("ligand.pdbqt")
+rmsd(ori, res)
+
+```
+
+```{r}
+
+```
+
+##Section 3: Normal MOde Analysis
+
+```{r}
+library(bio3d)
+pdb <-read.pdb("1HEL")
+modes <- nma(pdb)
+plot(modes, sse=pdb)
+
+# Visualize NMA results
+mktrj(modes, mode=7, file="nma_7.pdb")
+
+
+```
+
+
+
+

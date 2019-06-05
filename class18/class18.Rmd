@@ -1,0 +1,124 @@
+---
+title: "Class18"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(GenomicDataCommons)
+library(TCGAbiolinks)
+library(maftools)
+```
+
+```{r}
+projects <- getGDCprojects()
+head(projects)
+```
+
+```{r}
+cases_by_project <- cases() %>%
+  facet("project.project_id") %>%
+  aggregations()
+head(cases_by_project)
+```
+
+```{r}
+x <- cases_by_project$project.project_id
+
+
+# Make a custom color vector for our plot
+colvec <- rep("lightblue", nrow(x))
+colvec[x$key=="TCGA-PAAD"] <- "red"
+
+barplot(x$doc_count, names.arg = x$key, log="y", col=colvec, las=2)
+
+
+```
+
+```{r}
+samp <- getSampleFilesSummary("TCGA-PAAD")
+```
+```{r}
+head(samp)
+```
+
+
+```{r}
+library(bio3d)
+fasta <- read.fasta("lecture18_sequences.fa")
+
+
+align <- seqaln(fasta$ali, id=fasta$id, exefile = "muscle3.8.31_i86win32.exe", protein=TRUE, )
+head(align)
+
+fasta$ali
+
+
+```
+
+```{r}
+
+ide <- conserv(fasta, method= "identity")
+mismatch.inds <- which(ide<1)
+mismatch.inds
+
+gaps <- gap.inspect(fasta)
+gap.inds <- gaps$t.inds
+
+gap.inds
+mismatch.inds
+
+tumor.sites <- mismatch.inds[!(mismatch.inds%in%gap.inds)]
+
+tumor.sites
+
+
+
+
+```
+
+
+
+
+
+```{r}
+start.ind <- tumor.sites -8
+end.ind <- tumor.sites +8
+
+tumor <- NULL
+
+for(x in 1:length(start.ind)){
+  tumor <- seqbind(fasta$ali[2,start.ind:end.ind])
+}
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
