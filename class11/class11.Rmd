@@ -1,0 +1,162 @@
+---
+title: "Class 11: Structural Bioinformatics Part 1"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Revisit PDB
+
+#Q1
+ Download a CSV file from the PDB site (accessible from “Analyze” -> “PDB Statistics” > “by Experimental Method and Molecular Type”.  Move this CSV file into your RStudio project and determine the percentage of structures solved by X-Ray and Electron Microscopy.  Also can you determine what proportion of structures are protein?
+
+ 
+```{r}
+db <- read.csv("Data Export Summary.csv",row.names = 1)
+
+#Number of Total Entries
+sum(db$Total)
+
+#Percent of structures solved by X-ray and EM
+rowSums(db[,1:4])/sum(db$Total)*100
+
+#Proportion of Structure that are Protein and Nucleic Acid, Respectively
+sum(db$Proteins)/sum(db$Total)*100
+sum(db$Nucleic.Acids)/sum(db$Total)*100
+
+
+
+
+
+```
+
+#Section 3.3
+
+```{r}
+library(bio3d)
+pdb <- read.pdb("1hsg")
+print(pdb)
+
+```
+
+```{r}
+aa321(pdb$seqres)
+str(pdb$atom)
+```
+
+Section 4
+
+```{r}
+ca.inds <-atom.select(pdb, "calpha")
+ca.inds
+
+```
+
+##Atom Selection Examples
+
+```{r}
+atom.select(pdb,resno=10)
+```
+
+
+1hsg_protein <- 
+```{r}
+
+hsgprotein <- atom.select(pdb, "protein", value=TRUE)
+hsgprotein
+
+
+write.pdb(hsgprotein, file="1hsg_proteinpdb")
+
+ligand <- atom.select(pdb, "ligand", value=TRUE)
+write.pdb(ligand, file="1hsg_ligand")
+
+```
+
+```{r}
+library("bio3d.view")
+view(pdb, "overview", col="sse")
+```
+
+
+
+
+#Section 6.2 Aligning multiple Structures
+```{r}
+
+ids <-c("1TND_B","1AGR_A","1TAG_A","1GG2_A","1KJY_A","4G5Q_A")
+
+files <-get.pdb(ids, split =TRUE)
+
+
+# Extract and align the chains we are interested in
+pdbs <-pdbaln(files, fit =TRUE)
+
+
+pdbs
+```
+
+
+```{r}
+# Calculate sequence identity
+seqidentity(pdbs) 
+
+# Calculate RMSDs
+rmsd(pdbs)
+```
+
+```{r}
+# Calculate RMSD
+rd <-rmsd(pdbs)
+# Clustering
+hc <-hclust(as.dist(rd))
+grps <-cutree(hc, k=3)
+# Plot results as dendrogram
+hclustplot(hc, k=3)
+```
+
+```{r}
+# Perform PCA 
+pc.xray <-pca(pdbs)
+
+# Plot our results summary (PCA score plot and scree-plot)
+plot(pc.xray)
+
+
+# Visualize first principal component 
+pc1 <- mktrj(pc.xray, pc=1, file="pc_1.pdb")
+view(pc1)
+
+```
+
+
+
+
+
+```{r}
+aa <- get.seq("1ake_A")
+
+#Blast or hmmer search
+b <- blast.pdb(aa)
+
+# Plot a summary of search results
+hits <-plot(b)
+```
+
+
+
+
+
+```{r}
+head(hits$pdb.id)
+```
+
+
+
+
+
+
+
+
