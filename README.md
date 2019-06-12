@@ -21,6 +21,6 @@ Class Content:
 
 - Class 16
 
-- [Class 17]()
+- [Class 17](https://github.com/paxelnat/bggn213/blob/master/class17/class17.Rmd)
 
-- [Class 18](https://github.com/paxelnat/bggn213/blob/master/class18/class18.Rmd)
+- [Class 18](https://github.com/paxelnat/bggn213/blob/master/class18/class18.md)
