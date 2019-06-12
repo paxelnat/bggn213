@@ -8,6 +8,9 @@ This is my classwork for BGGN213
 
 
 Class Content:
+
+-[Class 11](https://github.com/paxelnat/bggn213/blob/master/class11/class11.md)
+
 - [Class 13](https://github.com/paxelnat/bggn213/blob/master/Class13/class13.md)
 
 - [Class 14](https://github.com/paxelnat/bggn213/blob/master/class14/class14.md)
