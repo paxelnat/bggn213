@@ -19,7 +19,7 @@ Class Content:
 
 - [Class 15](https://github.com/paxelnat/bggn213/blob/master/class15/class15.md)
 
-- [Class 16]()
+- Class 16
 
 - [Class 17]()
 
