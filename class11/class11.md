@@ -333,3 +333,114 @@ pdbs
     ##   6 sequence rows; 350 position columns (314 non-gap, 36 gap) 
     ## 
     ## + attr: xyz, resno, b, chain, id, ali, resid, sse, call
+
+``` r
+# Calculate sequence identity
+seqidentity(pdbs) 
+```
+
+    ##                          ./split_chain/1TND_B.pdb ./split_chain/1AGR_A.pdb
+    ## ./split_chain/1TND_B.pdb                    1.000                    0.693
+    ## ./split_chain/1AGR_A.pdb                    0.693                    1.000
+    ## ./split_chain/1TAG_A.pdb                    1.000                    0.694
+    ## ./split_chain/1GG2_A.pdb                    0.690                    0.997
+    ## ./split_chain/1KJY_A.pdb                    0.696                    0.994
+    ## ./split_chain/4G5Q_A.pdb                    0.696                    0.997
+    ##                          ./split_chain/1TAG_A.pdb ./split_chain/1GG2_A.pdb
+    ## ./split_chain/1TND_B.pdb                    1.000                    0.690
+    ## ./split_chain/1AGR_A.pdb                    0.694                    0.997
+    ## ./split_chain/1TAG_A.pdb                    1.000                    0.691
+    ## ./split_chain/1GG2_A.pdb                    0.691                    1.000
+    ## ./split_chain/1KJY_A.pdb                    0.697                    0.991
+    ## ./split_chain/4G5Q_A.pdb                    0.697                    0.994
+    ##                          ./split_chain/1KJY_A.pdb ./split_chain/4G5Q_A.pdb
+    ## ./split_chain/1TND_B.pdb                    0.696                    0.696
+    ## ./split_chain/1AGR_A.pdb                    0.994                    0.997
+    ## ./split_chain/1TAG_A.pdb                    0.697                    0.697
+    ## ./split_chain/1GG2_A.pdb                    0.991                    0.994
+    ## ./split_chain/1KJY_A.pdb                    1.000                    1.000
+    ## ./split_chain/4G5Q_A.pdb                    1.000                    1.000
+
+``` r
+# Calculate RMSDs
+rmsd(pdbs)
+```
+
+    ## Warning in rmsd(pdbs): No indices provided, using the 314 non NA positions
+
+    ##       [,1]  [,2]  [,3]  [,4]  [,5]  [,6]
+    ## [1,] 0.000 1.042 1.281 1.651 2.098 2.367
+    ## [2,] 1.042 0.000 1.628 1.811 1.949 2.244
+    ## [3,] 1.281 1.628 0.000 1.730 1.840 1.885
+    ## [4,] 1.651 1.811 1.730 0.000 1.901 2.032
+    ## [5,] 2.098 1.949 1.840 1.901 0.000 1.225
+    ## [6,] 2.367 2.244 1.885 2.032 1.225 0.000
+
+``` r
+# Calculate RMSD
+rd <-rmsd(pdbs)
+```
+
+    ## Warning in rmsd(pdbs): No indices provided, using the 314 non NA positions
+
+``` r
+# Clustering
+hc <-hclust(as.dist(rd))
+grps <-cutree(hc, k=3)
+# Plot results as dendrogram
+hclustplot(hc, k=3)
+```
+
+![](class11_files/figure-markdown_github/unnamed-chunk-10-1.png)
+
+``` r
+# Perform PCA 
+pc.xray <-pca(pdbs)
+
+# Plot our results summary (PCA score plot and scree-plot)
+plot(pc.xray)
+```
+
+![](class11_files/figure-markdown_github/unnamed-chunk-11-1.png)
+
+``` r
+# Visualize first principal component 
+pc1 <- mktrj(pc.xray, pc=1, file="pc_1.pdb")
+view(pc1)
+```
+
+    ## Potential all C-alpha atom structure(s) detected: Using calpha.connectivity()
+
+``` r
+aa <- get.seq("1ake_A")
+```
+
+    ## Warning in get.seq("1ake_A"): Removing existing file: seqs.fasta
+
+``` r
+#Blast or hmmer search
+b <- blast.pdb(aa)
+```
+
+    ##  Searching ... please wait (updates every 5 seconds) RID = G2E5ZBDJ014 
+    ##  .
+    ##  Reporting 97 hits
+
+``` r
+# Plot a summary of search results
+hits <-plot(b)
+```
+
+    ##   * Possible cutoff values:    197 -3 
+    ##             Yielding Nhits:    12 97 
+    ## 
+    ##   * Chosen cutoff value of:    197 
+    ##             Yielding Nhits:    12
+
+![](class11_files/figure-markdown_github/unnamed-chunk-12-1.png)
+
+``` r
+head(hits$pdb.id)
+```
+
+    ## [1] "1AKE_A" "4X8M_A" "4X8H_A" "3HPR_A" "1E4V_A" "5EJE_A"
